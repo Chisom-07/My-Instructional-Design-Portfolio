@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Case Study — Learner Performance Dashboard | Adaeze Okonkwo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black:#0a0a0a; --grey-deep:#111; --grey-mid:#1c1c1c; --grey-line:#2a2a2a;
+      --grey-muted:#5a5a5a; --cream:#e8e0d0; --white:#f5f2ec;
+      --gold:#c9a84c; --gold-light:#e0bf7a; --gold-dim:rgba(201,168,76,0.12);
+      --text-body:#b0a898; --green:#7dca9a; --red:#e07a7a; --radius:3px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--black);color:var(--cream);font-family:'Open Sans',sans-serif;font-weight:300;line-height:1.7;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:var(--black);}
+    ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;}
+    h1,h2,h3,h4{font-family:'Montserrat',sans-serif;font-weight:900;letter-spacing:-0.02em;line-height:1.1;}
+    .label{font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);}
+    .gold-line{width:48px;height:3px;background:var(--gold);margin-bottom:1.5rem;}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--grey-line);}
+    .nav-back{font-family:'Montserrat',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-body);transition:color 0.2s;}
+    .nav-back:hover{color:var(--gold);}
+    .nav-logo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:1rem;color:var(--white);}
+    .nav-logo span{color:var(--gold);}
+
+    /* LAYOUT */
+    .page-wrap{max-width:900px;margin:0 auto;padding:0 5vw;}
+    section{padding:5rem 5vw;}
+    section.tight{padding:3.5rem 5vw;}
+
+    /* HERO */
+    #cs-hero{padding:9rem 5vw 5rem;border-bottom:1px solid var(--grey-line);}
+    .cs-hero-inner{max-width:900px;margin:0 auto;}
+    .cs-tags{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;}
+    .cs-tag{font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.8rem;border:1px solid var(--grey-line);color:var(--text-body);border-radius:2px;}
+    .cs-hero-title{font-size:clamp(2rem,4.5vw,3.5rem);color:var(--white);margin-bottom:1.2rem;}
+    .cs-hero-title em{color:var(--gold);font-style:normal;}
+    .cs-hero-sub{font-size:1.05rem;color:var(--text-body);max-width:620px;line-height:1.8;margin-bottom:2.5rem;}
+    .cs-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    .cs-kpi{background:var(--grey-deep);border:1px solid var(--grey-line);border-radius:4px;padding:1.2rem;text-align:center;}
+    .cs-kpi-num{font-family:'Montserrat',sans-serif;font-size:1.8rem;font-weight:900;color:var(--gold);}
+    .cs-kpi-label{font-size:0.72rem;color:var(--grey-muted);margin-top:0.2rem;}
+
+    /* SECTIONS */
+    .cs-section{max-width:900px;margin:0 auto;}
+    .cs-section-header{margin-bottom:2.5rem;}
+    .cs-section-num{font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;}
+    .cs-section-title{font-size:clamp(1.5rem,3vw,2.2rem);color:var(--white);}
+    .cs-prose{font-size:0.97rem;color:var(--text-body);line-height:1.85;margin-bottom:1.2rem;}
+    .cs-prose strong{color:var(--cream);font-weight:600;}
+    .divider{border:none;border-top:1px solid var(--grey-line);margin:0;}
+
+    /* PROBLEM BOX */
+    .problem-box{background:var(--grey-deep);border:1px solid var(--grey-line);border-left:3px solid var(--red);border-radius:4px;padding:1.8rem;margin-top:1.5rem;}
+    .problem-box h4{font-family:'Montserrat',sans-serif;font-size:0.82rem;font-weight:700;color:var(--red);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.8rem;}
+    .problem-box p{font-size:0.92rem;color:var(--text-body);line-height:1.75;}
+
+    /* RAW GRADESHEET TABLE */
+    .table-wrap{overflow-x:auto;margin-top:1.5rem;border:1px solid var(--grey-line);border-radius:4px;}
+    table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+    thead tr{background:var(--grey-mid);}
+    th{font-family:'Montserrat',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);padding:0.9rem 1rem;text-align:left;border-bottom:1px solid var(--grey-line);white-space:nowrap;}
+    td{padding:0.75rem 1rem;color:var(--text-body);border-bottom:1px solid rgba(42,42,42,0.6);}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(255,255,255,0.02);}
+    .band-high{color:var(--green);}
+    .band-secure{color:#9ecfb8;}
+    .band-developing{color:#e8b96a;}
+    .band-priority{color:var(--red);}
+    .below-yes{color:var(--red);font-weight:600;}
+    .below-no{color:var(--grey-muted);}
+    .table-note{font-size:0.75rem;color:var(--grey-muted);margin-top:0.8rem;font-style:italic;}
+
+    /* CLEANING STEPS */
+    .steps-list{display:flex;flex-direction:column;gap:1rem;margin-top:1.5rem;}
+    .step-row{display:grid;grid-template-columns:44px 1fr;gap:1.2rem;align-items:start;}
+    .step-num{width:44px;height:44px;border-radius:50%;background:var(--gold-dim);border:2px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:900;font-size:0.8rem;color:var(--gold);flex-shrink:0;}
+    .step-body h4{font-family:'Montserrat',sans-serif;font-size:0.85rem;font-weight:700;color:var(--cream);margin-bottom:0.3rem;}
+    .step-body p{font-size:0.85rem;color:var(--text-body);line-height:1.6;}
+
+    /* CHARTS */
+    #dashboard{scroll-margin-top:80px;}
+    .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem;}
+    .chart-card{background:var(--grey-deep);border:1px solid var(--grey-line);border-radius:6px;padding:1.8rem;}
+    .chart-card h4{font-family:'Montserrat',sans-serif;font-size:0.85rem;font-weight:700;color:var(--cream);margin-bottom:1.5rem;}
+    .chart-card.full{grid-column:1/-1;}
+    canvas{display:block;width:100%!important;}
+
+    /* FINDINGS */
+    .findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.5rem;}
+    .finding-card{background:var(--grey-deep);border:1px solid var(--grey-line);border-radius:4px;padding:1.5rem;}
+    .finding-card.highlight{border-color:rgba(201,168,76,0.4);background:var(--gold-dim);}
+    .finding-num{font-family:'Montserrat',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+    .finding-card h4{font-size:0.9rem;font-weight:700;color:var(--cream);margin-bottom:0.5rem;font-family:'Montserrat',sans-serif;}
+    .finding-card p{font-size:0.82rem;color:var(--text-body);line-height:1.6;}
+    .finding-stat{font-family:'Montserrat',sans-serif;font-size:2rem;font-weight:900;color:var(--gold);margin-bottom:0.3rem;}
+
+    /* INTERVENTION TABLE */
+    .tier-grid{display:flex;flex-direction:column;gap:1rem;margin-top:1.5rem;}
+    .tier-row{display:grid;grid-template-columns:120px 1fr;gap:0;border:1px solid var(--grey-line);border-radius:4px;overflow:hidden;}
+    .tier-badge{display:flex;align-items:center;justify-content:center;padding:1.2rem;font-family:'Montserrat',sans-serif;font-size:0.7rem;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;text-align:center;}
+    .tier-priority{background:rgba(224,122,122,0.15);color:var(--red);}
+    .tier-targeted{background:rgba(201,168,76,0.12);color:var(--gold);}
+    .tier-watch{background:rgba(158,207,184,0.1);color:#9ecfb8;}
+    .tier-enrich{background:rgba(125,202,154,0.1);color:var(--green);}
+    .tier-content{padding:1.2rem;background:var(--grey-deep);}
+    .tier-content h4{font-family:'Montserrat',sans-serif;font-size:0.82rem;font-weight:700;color:var(--cream);margin-bottom:0.3rem;}
+    .tier-content p{font-size:0.82rem;color:var(--text-body);line-height:1.6;}
+    .tier-meta{font-size:0.72rem;color:var(--grey-muted);margin-top:0.4rem;}
+
+    /* LIMITATIONS */
+    .limit-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.5rem;}
+    .limit-box{background:var(--grey-deep);border:1px solid var(--grey-line);border-radius:4px;padding:1.4rem;}
+    .limit-box.improve{border-color:rgba(201,168,76,0.3);}
+    .limit-box h4{font-family:'Montserrat',sans-serif;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.8rem;}
+    .limit-box h4.red{color:var(--red);}
+    .limit-box h4.gold{color:var(--gold);}
+    .limit-box ul{list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+    .limit-box li{font-size:0.82rem;color:var(--text-body);line-height:1.55;padding-left:1rem;position:relative;}
+    .limit-box li::before{content:'→';position:absolute;left:0;color:var(--grey-muted);}
+    .limit-box.improve li::before{color:var(--gold);}
+
+    /* FOOTER */
+    .cs-footer{border-top:1px solid var(--grey-line);padding:2.5rem 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+    .cs-footer-copy{font-size:0.78rem;color:var(--grey-muted);}
+    .btn{display:inline-flex;align-items:center;gap:0.6rem;font-family:'Montserrat',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:0.85rem 2rem;border-radius:var(--radius);transition:all 0.25s;cursor:pointer;border:none;}
+    .btn-primary{background:var(--gold);color:var(--black);}
+    .btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);}
+    .btn-outline{background:transparent;border:1px solid var(--grey-line);color:var(--cream);}
+    .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* FADE */
+    .fade-up{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease;}
+    .fade-up.visible{opacity:1;transform:translateY(0);}
+
+    @media(max-width:768px){
+      .cs-kpi-row{grid-template-columns:1fr 1fr;}
+      .chart-grid{grid-template-columns:1fr;}
+      .chart-card.full{grid-column:auto;}
+      .findings-grid{grid-template-columns:1fr;}
+      .limit-grid{grid-template-columns:1fr;}
+      .tier-row{grid-template-columns:90px 1fr;}
+    }
+    @media(max-width:480px){
+      .cs-kpi-row{grid-template-columns:1fr 1fr;}
+      .tier-row{grid-template-columns:1fr;}
+      .tier-badge{padding:0.8rem;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="portfolio.html" class="nav-back">← Back to Portfolio</a>
+  <div class="nav-logo">Ada<span>.</span></div>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════ -->
+<section id="cs-hero">
+  <div class="cs-hero-inner">
+    <div class="cs-tags">
+      <span class="cs-tag">Data Analysis</span>
+      <span class="cs-tag">Learning Analytics</span>
+      <span class="cs-tag">Excel Dashboard</span>
+      <span class="cs-tag">Intervention Design</span>
+    </div>
+    <h1 class="cs-hero-title">Learner Performance Analysis &amp;<br><em>Intervention Dashboard</em></h1>
+    <p class="cs-hero-sub">A multi-term assessment dashboard that transforms raw learner scores into clear performance insights, identifies recurring learning gaps, and recommends targeted academic interventions.</p>
+    <div class="cs-kpi-row">
+      <div class="cs-kpi fade-up">
+        <div class="cs-kpi-num">46</div>
+        <div class="cs-kpi-label">Learners Analysed</div>
+      </div>
+      <div class="cs-kpi fade-up">
+        <div class="cs-kpi-num">1,150</div>
+        <div class="cs-kpi-label">Assessment Records</div>
+      </div>
+      <div class="cs-kpi fade-up">
+        <div class="cs-kpi-num">17</div>
+        <div class="cs-kpi-label">Subjects Tracked</div>
+      </div>
+      <div class="cs-kpi fade-up">
+        <div class="cs-kpi-num">87.3%</div>
+        <div class="cs-kpi-label">Overall Cohort Average</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 1. PROJECT OVERVIEW ═══════════════════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">01 — Project Overview</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">What this project does</h2>
+    </div>
+    <p class="cs-prose">This Excel-based dashboard was designed to replace a fragmented, score-only reporting system with a structured analytical tool that a classroom teacher or academic coordinator could actually use. Rather than simply showing totals and positions, it answers the questions that matter most: <strong>Which learners are falling behind? Is a gap isolated or recurring? What should happen next?</strong></p>
+    <p class="cs-prose">The dashboard processes three terms of assessment data for a cohort of 46 learners across 17 subjects — 1,150 individual score records in total — and produces four analytical outputs: a summary dashboard, a learner-level analysis sheet, a subject-and-term breakdown, and a ready-to-use intervention plan with recommended support actions for every flagged learner.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem;">
+      <div style="background:var(--grey-deep);border:1px solid var(--grey-line);border-radius:4px;padding:1.4rem;">
+        <div class="label" style="margin-bottom:0.6rem;">Role</div>
+        <p style="font-size:0.88rem;color:var(--text-body);">Data analysis · Dashboard design · Intervention planning</p>
+      </div>
+      <div style="background:var(--grey-deep);border:1px solid var(--grey-line);border-radius:4px;padding:1.4rem;">
+        <div class="label" style="margin-bottom:0.6rem;">Tools Used</div>
+        <p style="font-size:0.88rem;color:var(--text-body);">Microsoft Excel · Data Cleaning · Data Visualisation · Learning Analytics</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 2. THE ORIGINAL PROBLEM ══════════════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">02 — The Original Problem</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">What was missing</h2>
+    </div>
+    <p class="cs-prose">The source workbook stored assessment scores across three separate term sheets. Each sheet showed a learner's scores by subject, their total marks, and their class position — but nothing more. There was <strong>no way to see patterns across terms, no mechanism for identifying recurring gaps, and no structure for deciding which learners needed support and what that support should look like.</strong></p>
+    <div class="problem-box">
+      <h4>The gap that needed solving</h4>
+      <p>A teacher looking at Term 1 scores could see that a learner scored 50 in IGBO. But was that a one-off? Had it happened in Term 2 as well? Was IGBO a class-wide weakness or an individual struggle? Without a cross-term view, those questions had no answer — and without answers, interventions were guesswork.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 3. RAW GRADESHEET ════════════════════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">03 — The Raw Gradesheet</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">What the source data looked like</h2>
+    </div>
+    <p class="cs-prose">Before any cleaning, the data was a flat list of learner names, subject scores, totals, and positions — repeated across three separate sheets with no consistent learner identifiers, no cross-term linking, and no performance flags. The sample below shows a representative extract of what the analysis data looked like once it was restructured into one unified table.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Term</th><th>Learner ID</th><th>Subject</th><th>Score (%)</th><th>Below 70%</th><th>Performance Band</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Term 1</td><td>L017</td><td>FRENCH</td><td>58</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 1</td><td>L017</td><td>IGBO</td><td>50</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 1</td><td>L017</td><td>VERBAL</td><td>66</td><td class="below-yes">Yes</td><td class="band-developing">Developing</td></tr>
+          <tr><td>Term 1</td><td>L017</td><td>ENGLISH</td><td>70</td><td class="below-no">No</td><td class="band-secure">Secure</td></tr>
+          <tr><td>Term 2</td><td>L017</td><td>IGBO</td><td>37</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 2</td><td>L017</td><td>YORUBA</td><td>53</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 2</td><td>L017</td><td>FRENCH</td><td>66</td><td class="below-yes">Yes</td><td class="band-developing">Developing</td></tr>
+          <tr><td>Term 1</td><td>L029</td><td>NATIONAL VALUES</td><td>56</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 2</td><td>L029</td><td>IGBO</td><td>23</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 2</td><td>L029</td><td>PRE-VOCATIONAL</td><td>42</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 1</td><td>L018</td><td>MATHEMATICS</td><td>100</td><td class="below-no">No</td><td class="band-high">High</td></tr>
+          <tr><td>Term 1</td><td>L018</td><td>MUSIC</td><td>100</td><td class="below-no">No</td><td class="band-high">High</td></tr>
+          <tr><td>Term 3</td><td>L039</td><td>HISTORY</td><td>58</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 3</td><td>L039</td><td>CREATIVE ARTS</td><td>52</td><td class="below-yes">Yes</td><td class="band-priority">Priority</td></tr>
+          <tr><td>Term 1</td><td>L002</td><td>MATHEMATICS</td><td>100</td><td class="below-no">No</td><td class="band-high">High</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">Sample extract from the 1,150-record Analysis Data sheet. Learner names replaced with stable anonymised IDs. Full dataset spans Terms 1–3, 17 subjects, 46 learners.</p>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 4. DATA CLEANING & ANONYMISATION ═════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">04 — Data Cleaning &amp; Anonymisation</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">Preparing the data for analysis</h2>
+    </div>
+    <p class="cs-prose">Before any analysis could begin, the source data needed to be restructured, standardised, and de-identified. The three term sheets were formatted differently, names were inconsistently spelled across terms, and there was no cross-term learner identifier. The preparation process involved four key steps.</p>
+    <div class="steps-list">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Identity Standardisation &amp; Anonymisation</h4>
+          <p>Learner names were reviewed across all three terms. Where the same individual appeared in multiple terms, a stable anonymised ID (L001–L046) was assigned. Names were fully replaced in all analysis and output sheets, with IDs used consistently throughout.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Data Reshaping</h4>
+          <p>The original format had one row per learner with each subject as a column. This was reshaped into a long-format table — one row per subject-score record — with columns for Term, Learner ID, Subject, Score, Below-Threshold Flag, and Performance Band. This structure makes analysis and cross-filtering reliable.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Threshold &amp; Band Classification</h4>
+          <p>A 70% support threshold was applied to all scores. Each record was classified into one of four performance bands: High (85–100%), Secure (70–84%), Developing (60–69%), and Priority (&lt;60%). These bands were used consistently across all analysis views.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Cross-Term Pattern Detection</h4>
+          <p>Where a learner's ID could be reliably matched across consecutive terms, subject-level patterns were checked — distinguishing isolated low scores from recurring difficulties. Third-term learner identities were not always matchable, so term-change analysis was only applied where identity confidence was high.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 5. ANALYSIS APPROACH ════════════════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">05 — Analysis Approach</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">How the analysis was structured</h2>
+    </div>
+    <p class="cs-prose">The analysis was structured across three levels: <strong>cohort level</strong> (class averages, distribution, term trends), <strong>subject level</strong> (which subjects are class strengths vs. areas of concern), and <strong>learner level</strong> (who needs support, how urgently, and in which areas).</p>
+    <p class="cs-prose">At learner level, a four-tier classification system was used to differentiate between levels of need and generate appropriate intervention recommendations automatically:</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-top:1.2rem;">
+      <div style="background:rgba(224,122,122,0.1);border:1px solid rgba(224,122,122,0.3);border-radius:4px;padding:1rem;text-align:center;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:0.75rem;color:var(--red);margin-bottom:0.4rem;">PRIORITY</div>
+        <div style="font-size:0.75rem;color:var(--text-body);">Average below threshold or 3+ critical subjects</div>
+      </div>
+      <div style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:4px;padding:1rem;text-align:center;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:0.75rem;color:var(--gold);margin-bottom:0.4rem;">TARGETED</div>
+        <div style="font-size:0.75rem;color:var(--text-body);">2–3 subjects below threshold</div>
+      </div>
+      <div style="background:rgba(158,207,184,0.08);border:1px solid rgba(158,207,184,0.2);border-radius:4px;padding:1rem;text-align:center;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:0.75rem;color:#9ecfb8;margin-bottom:0.4rem;">WATCH</div>
+        <div style="font-size:0.75rem;color:var(--text-body);">1 subject below threshold</div>
+      </div>
+      <div style="background:rgba(125,202,154,0.08);border:1px solid rgba(125,202,154,0.2);border-radius:4px;padding:1rem;text-align:center;">
+        <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:0.75rem;color:var(--green);margin-bottom:0.4rem;">ENRICHMENT</div>
+        <div style="font-size:0.75rem;color:var(--text-body);">No subjects below threshold</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 6. DASHBOARD PREVIEW ═════════════════════════════════ -->
+<section class="tight" id="dashboard">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">06 — Dashboard Preview</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">Visual performance overview</h2>
+    </div>
+    <p class="cs-prose">The charts below are rendered from the actual dashboard data. They replicate the four core visualisation panels built in Excel: subject performance ranking, term-by-term cohort trend, performance band distribution, and the learner support tier breakdown.</p>
+    <div class="chart-grid">
+      <!-- Subject bar chart -->
+      <div class="chart-card full">
+        <h4>Subject Performance — Overall Average (%) · Threshold: 70%</h4>
+        <canvas id="subjectChart" height="280"></canvas>
+      </div>
+      <!-- Term trend -->
+      <div class="chart-card">
+        <h4>Term-by-Term Cohort Average (%)</h4>
+        <canvas id="termChart" height="220"></canvas>
+      </div>
+      <!-- Band distribution -->
+      <div class="chart-card">
+        <h4>Performance Band Distribution (1,150 records)</h4>
+        <canvas id="bandChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 7. KEY FINDINGS ══════════════════════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">07 — Key Findings</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">What the data revealed</h2>
+    </div>
+    <div class="findings-grid">
+      <div class="finding-card highlight">
+        <div class="finding-num">Finding 01</div>
+        <div class="finding-stat">87.3%</div>
+        <h4>Strong Overall Cohort Performance</h4>
+        <p>The class average across all three terms and 17 subjects was 87.3%, with Term 1 at 87.1%, Term 2 at 87.4%, and Term 3 at 87.3% — indicating stable, consistent performance at cohort level.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Finding 02</div>
+        <div class="finding-stat">IGBO</div>
+        <h4>Persistent Class-Wide Weakness</h4>
+        <p>IGBO was the weakest subject overall at 76.3% average, with 20 below-threshold records across the cohort — the highest of any subject. This is a class-wide signal, not an individual one. Creative Arts (78.6%) and French (80.1%) also showed relative weakness.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Finding 03</div>
+        <div class="finding-stat">9</div>
+        <h4>Priority Learner-Term Records</h4>
+        <p>Nine learner-term combinations met the Priority threshold. L029 (Terms 1 &amp; 2) and L017 (all three terms) were the most consistently at-risk learners, with multiple recurring gaps in language subjects across terms.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Finding 04</div>
+        <div class="finding-stat">67.1%</div>
+        <h4>Recurring vs. Isolated Gaps</h4>
+        <p>7 learner-term records showed <em>recurring</em> subject difficulties — the same subject appearing below threshold in consecutive terms. L029's recurring gaps in French, Yoruba, and Igbo across Terms 1–2 is the clearest example, with Term 2 average falling to 59.7%.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Finding 05</div>
+        <h4>Class Strengths</h4>
+        <p>Music (93.8%), Literature (93.0%), and Religious Studies (91.8%) were consistently the strongest subjects across all three terms. These can serve as confidence anchors and peer-learning opportunities for struggling learners.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-num">Finding 06</div>
+        <h4>High-Performing Learners</h4>
+        <p>L018 achieved 97.7% average across two terms — the highest in the cohort. L040 (97.6%) and L027 (97.5%) followed closely. These learners are strong candidates for extension tasks and structured peer-support roles.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 8. INTERVENTION RECOMMENDATIONS ══════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">08 — Intervention Recommendations</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">Who gets what support — and why</h2>
+    </div>
+    <p class="cs-prose">The intervention plan assigns every learner-term record to one of four tiers, with a specific recommended response. This is not a static list — it is designed to be reviewed after each assessment cycle. Owners and review dates can be added directly in the Excel sheet.</p>
+    <div class="tier-grid">
+      <div class="tier-row">
+        <div class="tier-badge tier-priority">Priority<br>Support</div>
+        <div class="tier-content">
+          <h4>One-to-one diagnostic coaching + weekly monitored practice</h4>
+          <p>Applied to learners with average below 70% or 3+ critical subjects below threshold. Involves identifying the root cause of difficulty in each flagged subject before assigning practice.</p>
+          <p class="tier-meta">Learners flagged: L029 (Terms 1 &amp; 2), L039 (Term 3), L017 (Terms 1, 2 &amp; 3), L046 (Term 1), L022 (Term 3), L021 (Term 2)</p>
+        </div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-badge tier-targeted">Targeted<br>Support</div>
+        <div class="tier-content">
+          <h4>Small-group support twice weekly + short progress checks</h4>
+          <p>Applied to learners with 2–3 subjects below threshold. Focuses on the specific flagged subjects rather than whole-class re-teaching.</p>
+          <p class="tier-meta">Learners flagged: L021 (Term 1), L046 (Term 2), L025 (Term 2), L035 (Term 1)</p>
+        </div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-badge tier-watch">Watch<br>List</div>
+        <div class="tier-content">
+          <h4>Focused revision activities + differentiated resources</h4>
+          <p>Applied to learners with one subject below threshold. Light-touch monitoring with subject-specific revision materials. Reviewed at the next assessment point.</p>
+          <p class="tier-meta">Includes L014 (Terms 1 &amp; 2), L024 (Term 1), L025 (Term 1), L035 (Terms 1 &amp; 2), L041 (Terms 1 &amp; 2), and others</p>
+        </div>
+      </div>
+      <div class="tier-row">
+        <div class="tier-badge tier-enrich">Enrichment<br>Track</div>
+        <div class="tier-content">
+          <h4>Extension tasks + independent projects + peer-support opportunities</h4>
+          <p>Applied to learners with no subjects below threshold. Keeps high-performing learners engaged and creates structured opportunities for them to support peers — benefiting both parties.</p>
+          <p class="tier-meta">Majority of the cohort, including L018, L030, L033, L034, and others with 85%+ averages</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ═══ 9. LIMITATIONS & IMPROVEMENTS ════════════════════════ -->
+<section class="tight">
+  <div class="cs-section fade-up">
+    <div class="cs-section-header">
+      <div class="cs-section-num">09 — Limitations &amp; Improvements</div>
+      <div class="gold-line"></div>
+      <h2 class="cs-section-title">What this analysis can and cannot tell us</h2>
+    </div>
+    <p class="cs-prose">Being transparent about the limits of an analysis is as important as the findings themselves. This dashboard is a strong starting point — but it makes clear what additional data would make it more powerful.</p>
+    <div class="limit-grid">
+      <div class="limit-box">
+        <h4 class="red">Current Limitations</h4>
+        <ul>
+          <li>Third-term learner identities don't reliably match Terms 1–2, so individual term-change analysis isn't shown for Term 3</li>
+          <li>Scores alone don't diagnose the cause of difficulty — attendance, assessment difficulty, and external factors are not captured</li>
+          <li>No demographic or socioeconomic data to contextualise patterns</li>
+          <li>The dataset has no item-level detail — we know a learner scored 50 in IGBO, but not which specific skills were weakest</li>
+          <li>Intervention outcomes are not tracked — there's no way yet to know if the recommended actions worked</li>
+        </ul>
+      </div>
+      <div class="limit-box improve">
+        <h4 class="gold">Recommended Improvements</h4>
+        <ul>
+          <li>Assign a permanent learner ID at enrolment and use it across every term and academic year</li>
+          <li>Record assessment dates and the specific learning objectives each task covers</li>
+          <li>Add an attendance column alongside scores — it often explains low performance</li>
+          <li>Build an intervention outcomes column so the dashboard can track whether support made a difference</li>
+          <li>Refresh the dashboard after every assessment cycle to build a longitudinal view</li>
+          <li>Future version: add skill-level item analysis and visualise learning objective mastery per subject</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════ -->
+<footer class="cs-footer">
+  <div class="cs-footer-copy">© 2025 Adaeze Okonkwo · Case Study</div>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <a href="portfolio.html" class="btn btn-outline" style="font-size:0.7rem;padding:0.7rem 1.4rem;">← Back to Portfolio</a>
+    <a href="Learner_Performance_Analysis_and_Intervention_Dashboard.xlsx" class="btn btn-primary" style="font-size:0.7rem;padding:0.7rem 1.4rem;" download>↓ Download Dashboard</a>
+  </div>
+</footer>
+
+<script>
+// ── Fade up observer ──────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} });
+},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+// ── Chart helpers ─────────────────────────────────────────────
+const GOLD = '#c9a84c';
+const GOLD2 = '#e0bf7a';
+const RED  = '#e07a7a';
+const GREEN= '#7dca9a';
+const GREY = '#2a2a2a';
+const TEXT = '#5a5a5a';
+const CREAM= '#b0a898';
+
+function drawBarChart(canvasId, labels, values, threshold, colorFn) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth;
+  const H = parseInt(canvas.getAttribute('height')) || 280;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = {top:20, right:20, bottom:55, left:38};
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top - pad.bottom;
+  const n = labels.length;
+  const barW = (cW / n) * 0.62;
+  const gap   = cW / n;
+  const minV = 60, maxV = 100;
+
+  // grid lines
+  [60,70,80,90,100].forEach(v => {
+    const y = pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
+    ctx.strokeStyle = v === 70 ? 'rgba(201,168,76,0.35)' : GREY;
+    ctx.lineWidth   = v === 70 ? 1.5 : 0.8;
+    ctx.setLineDash(v === 70 ? [4,3] : []);
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = v === 70 ? GOLD : TEXT;
+    ctx.font = `${v===70?'700':'400'} 9px Montserrat, sans-serif`;
+    ctx.fillText(v, pad.left - 8, y + 3);
+  });
+
+  // bars
+  values.forEach((v, i) => {
+    const x = pad.left + i * gap + (gap - barW) / 2;
+    const barH = ((v - minV) / (maxV - minV)) * cH;
+    const y = pad.top + cH - barH;
+    ctx.fillStyle = colorFn(v);
+    // rounded top
+    const r = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + barW - r, y);
+    ctx.arcTo(x + barW, y, x + barW, y + r, r);
+    ctx.lineTo(x + barW, y + barH);
+    ctx.lineTo(x, y + barH);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+    ctx.fill();
+    // value label on top of bar
+    ctx.fillStyle = CREAM;
+    ctx.font = '600 8px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(v.toFixed(1), x + barW / 2, y - 4);
+  });
+
+  // x labels
+  labels.forEach((l, i) => {
+    const x = pad.left + i * gap + gap / 2;
+    ctx.fillStyle = TEXT;
+    ctx.font = '600 8px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.save();
+    ctx.translate(x, pad.top + cH + 12);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillText(l, 0, 0);
+    ctx.restore();
+  });
+}
+
+function drawLineChart(canvasId, labels, datasets) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth;
+  const H = parseInt(canvas.getAttribute('height')) || 220;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const pad = {top:30, right:30, bottom:40, left:44};
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top - pad.bottom;
+  const n = labels.length;
+  const minV = 85, maxV = 90;
+
+  // grid
+  [85,86,87,88,89,90].forEach(v => {
+    const y = pad.top + cH - ((v-minV)/(maxV-minV))*cH;
+    ctx.strokeStyle = GREY; ctx.lineWidth = 0.7; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cW,y); ctx.stroke();
+    ctx.fillStyle = TEXT; ctx.font='9px Montserrat,sans-serif'; ctx.textAlign='right';
+    ctx.fillText(v+'%', pad.left-6, y+3);
+  });
+
+  datasets.forEach(ds => {
+    const pts = ds.data.map((v,i) => ({
+      x: pad.left + i*(cW/(n-1)),
+      y: pad.top + cH - ((v-minV)/(maxV-minV))*cH
+    }));
+    // line
+    ctx.strokeStyle = ds.color; ctx.lineWidth=2.5; ctx.setLineDash([]);
+    ctx.beginPath(); pts.forEach((p,i) => i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+    // area fill
+    ctx.beginPath();
+    pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.lineTo(pts[pts.length-1].x, pad.top+cH);
+    ctx.lineTo(pts[0].x, pad.top+cH);
+    ctx.closePath();
+    ctx.fillStyle = ds.fill; ctx.fill();
+    // dots + labels
+    pts.forEach((p,i) => {
+      ctx.fillStyle=ds.color; ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=CREAM; ctx.font='bold 9px Montserrat,sans-serif'; ctx.textAlign='center';
+      ctx.fillText(ds.data[i].toFixed(1)+'%', p.x, p.y-10);
+    });
+  });
+
+  // x labels
+  labels.forEach((l,i)=>{
+    const x=pad.left+i*(cW/(n-1));
+    ctx.fillStyle=CREAM; ctx.font='600 10px Montserrat,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(l, x, pad.top+cH+18);
+  });
+}
+
+function drawDonutChart(canvasId, slices) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth;
+  const H = parseInt(canvas.getAttribute('height')) || 220;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = W * 0.38, cy = H / 2, r = Math.min(W*0.3, H*0.38), ir = r * 0.55;
+  const total = slices.reduce((s,sl)=>s+sl.val,0);
+  let start = -Math.PI / 2;
+
+  slices.forEach(sl => {
+    const sweep = (sl.val / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start+sweep);
+    ctx.closePath();
+    ctx.fillStyle = sl.color;
+    ctx.fill();
+    start += sweep;
+  });
+
+  // hole
+  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2); ctx.fillStyle='#0a0a0a'; ctx.fill();
+  // centre text
+  ctx.fillStyle=CREAM; ctx.font='bold 14px Montserrat,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('1,150', cx, cy+4);
+  ctx.fillStyle=TEXT; ctx.font='9px Open Sans,sans-serif';
+  ctx.fillText('records', cx, cy+16);
+
+  // legend
+  const lx = W * 0.7, ly = cy - slices.length * 14;
+  slices.forEach((sl, i) => {
+    const y = ly + i * 28;
+    ctx.fillStyle = sl.color; ctx.fillRect(lx-14, y-8, 10, 10);
+    ctx.fillStyle = CREAM; ctx.font = '600 9px Montserrat,sans-serif'; ctx.textAlign='left';
+    ctx.fillText(sl.label, lx, y+1);
+    ctx.fillStyle = TEXT; ctx.font='9px Open Sans,sans-serif';
+    ctx.fillText(sl.val+' ('+Math.round(sl.val/total*100)+'%)', lx, y+13);
+  });
+}
+
+// ── Render when in view ───────────────────────────────────────
+let chartsDrawn = false;
+const chartObs = new IntersectionObserver(entries => {
+  if (entries.some(e => e.isIntersecting) && !chartsDrawn) {
+    chartsDrawn = true;
+    setTimeout(() => {
+
+      // Subject chart
+      const subjects = ['MUSIC','LIT','RS','B.SCI','NAT.VAL','QUANT','MATHS','HIST','VERBAL','YORUBA','PRE-VOC','ENG','HANDWR','DICTION','FRENCH','CR.ARTS','IGBO'];
+      const savgs    = [93.8, 93.0, 91.8, 90.7, 90.1, 90.1, 89.2, 88.8, 88.6, 88.2, 88.1, 86.4, 85.8, 81.9, 80.1, 78.6, 76.3];
+      drawBarChart('subjectChart', subjects, savgs, 70, v => v >= 85 ? '#c9a84c' : v >= 70 ? '#a08838' : '#e07a5f');
+
+      // Term chart
+      drawLineChart('termChart',
+        ['Term 1','Term 2','Term 3'],
+        [{data:[87.1,87.4,87.3], color:GOLD, fill:'rgba(201,168,76,0.08)'}]
+      );
+
+      // Band donut
+      drawDonutChart('bandChart', [
+        {val:772, color:'#c9a84c',       label:'High (85–100%)'},
+        {val:272, color:'#7dca9a',       label:'Secure (70–84%)'},
+        {val:70,  color:'#e8b96a',       label:'Developing (60–69%)'},
+        {val:36,  color:'#e07a7a',       label:'Priority (<60%)'},
+      ]);
+
+    }, 100);
+  }
+}, {threshold:0.1});
+document.querySelector('#dashboard') && chartObs.observe(document.querySelector('#dashboard'));
+</script>
+</body>
+</html>
