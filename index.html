@@ -943,7 +943,6 @@
       <div class="contact-right fade-up fade-up-d2">
         <form class="contact-form-card" name="contact" method="POST" data-netlify="true">
           <input type="hidden" name="form-name" value="contact" />
-        <div class="contact-form-card">
           <h3>Send a Message</h3>
           <div class="form-group">
             <label for="fname">Your Name</label>
@@ -959,11 +958,9 @@
           </div>
           <div class="form-group">
             <label for="fmsg">Message</label>
-            <textarea id="fmsg" placeholder="Tell me a bit about what you're working on..."></textarea>
+            <textarea id="fmsg" name="message" placeholder="Tell me a bit about what you're working on..."></textarea>
           </div>
-          <button type="submit" class="btn btn-primary btn-form" onclick="handleSubmit(this)">Send Message →</button>
-        </div>
-      </div>
+          <button type="submit" class="btn btn-primary btn-form">Send Message →</button>
     </form>
     </div>
   </section>
